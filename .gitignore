@@ -1,16 +1,16 @@
 # Python
-/Users/zoro/cursor_projects/GSG/__pycache__/
-/Users/zoro/cursor_projects/GSG/*.py[cod]
-/Users/zoro/cursor_projects/GSG/.env
-/Users/zoro/cursor_projects/GSG/.venv/
+/__pycache__/
+*.py[cod]
+/.env
+/.venv/
 
 # IDE
-/Users/zoro/cursor_projects/GSG/.cursor/
-/Users/zoro/cursor_projects/GSG/.vscode/
+/.cursor/
+/.vscode/
 
 # OS
-/Users/zoro/cursor_projects/GSG/.DS_Store
+.DS_Store
 
 # Project specific
-/Users/zoro/cursor_projects/GSG/node_modules/
-/Users/zoro/cursor_projects/GSG/*.log 
+/node_modules/
+*.log 
