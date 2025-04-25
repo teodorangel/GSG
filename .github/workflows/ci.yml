@@ -36,8 +36,12 @@ jobs:
 
       - name: Install deps
         run: |
-          poetry install --no-interaction
-          poetry run pip install pytest-cov
+          poetry install --with dev --no-interaction
+
+      - name: Debug installed packages
+        run: |
+          poetry show
+          poetry run pip list
 
       - name: Run tests + coverage
         env:
