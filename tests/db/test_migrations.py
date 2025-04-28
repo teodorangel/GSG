@@ -9,7 +9,7 @@ def test_tables_exist():
     """
     db_url = os.getenv(
         'DATABASE_URL',
-        'postgresql://postgres:postgres@localhost:5432/postgres'
+        'postgresql://postgres:postgres@localhost:5432/gsg'
     )
     engine = create_engine(db_url)
     inspector = inspect(engine)
