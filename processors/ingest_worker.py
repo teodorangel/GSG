@@ -7,8 +7,8 @@ import tempfile
 
 import pinecone
 from crawler.items import DataItem, ItemType
-from langchain.document_loaders.html import HTMLLoader
-from langchain.document_loaders.pdf import PyPDFLoader
+from langchain_community.document_loaders import UnstructuredHTMLLoader as HTMLLoader
+from langchain_community.document_loaders import UnstructuredPDFLoader as PyPDFLoader
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 
@@ -55,6 +55,11 @@ class IngestWorker:
                     loader = HTMLLoader(tmp_path)
                     docs = loader.load()
                     os.remove(tmp_path)
+
+                # Ensure metadata on docs for text splitter compatibility
+                for doc in docs:
+                    if not hasattr(doc, 'metadata'):
+                        doc.metadata = {}
 
                 # Split into chunks
                 chunks = self.splitter.split_documents(docs)
