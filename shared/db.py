@@ -95,38 +95,22 @@ def create_product(db: SessionLocal, *, model: str, name: str) -> Product:
 
 def get_or_create_product(db: SessionLocal, *, model: str, name: str) -> Product:
     """Get or create a product with SELECT FOR UPDATE to handle concurrency."""
-    # Try to get existing product with row lock
-    stmt = (
-        db.query(Product)
-        .filter(Product.model == model)
-        .with_for_update()
-    )
-    product = stmt.first()
-    
-    if product is None:
-        # Product doesn't exist, try to create it
-        try:
-            # Using PostgreSQL's INSERT ... ON CONFLICT DO NOTHING
-            stmt = insert(Product).values(
-                model=model,
-                name=name
-            ).on_conflict_do_nothing(
-                index_elements=['model']
-            ).returning(Product)
-            result = db.execute(stmt)
-            db.commit()
-            product = result.first()
-            
-            # If insert didn't work (conflict), try to get the existing record
-            if product is None:
-                product = db.query(Product).filter(Product.model == model).first()
-        
-        except IntegrityError:
-            db.rollback()
-            # If we got an integrity error, try one more time to get the product
-            product = db.query(Product).filter(Product.model == model).first()
-    
-    return product
+    try:
+        # Try to get existing product
+        product = db.query(Product).filter(Product.model == model).first()
+        if product:
+            return product
+
+        # Product doesn't exist, create it
+        product = Product(model=model, name=name)
+        db.add(product)
+        db.commit()
+        db.refresh(product)
+        return product
+    except IntegrityError:
+        db.rollback()
+        # If we got an integrity error, try one more time to get the product
+        return db.query(Product).filter(Product.model == model).first()
 
 def create_document(
     db: SessionLocal, *, product_id: int, url: str, content: Optional[str] = None
