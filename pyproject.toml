@@ -15,9 +15,11 @@ pydantic-ai = "^0.1.4"
 psycopg = {extras = ["binary"], version = "^3.2.6"}
 sqlalchemy = "^2.0.40"
 alembic = "^1.15.2"
-pinecone-client = "^6.0.0"
+tiktoken = "^0.6.0"
 python-dotenv = "^1.1.0"
 rich = "^14.0.0"
+pinecone = "^6.0.2"
+langchain-community = "^0.3.22"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=8.1.0,<8.2.0"
