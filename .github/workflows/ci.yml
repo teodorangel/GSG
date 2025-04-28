@@ -37,7 +37,17 @@ jobs:
       - name: Install deps
         run: poetry install --no-interaction --with dev
 
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        run: poetry run alembic upgrade head
+
       - name: Debug installed packages
+        run: poetry show
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        run: poetry run alembic upgrade head
         run: |
           poetry show
           poetry run pip list
