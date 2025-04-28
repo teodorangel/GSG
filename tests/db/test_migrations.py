@@ -17,9 +17,10 @@ def test_tables_exist():
 
     expected = [
         'products',
-        'product_documents',
-        'product_images',
+        'documents',
+        'images',
         'videos',
+        'alembic_version'
     ]
     for table in expected:
         assert table in tables, f"Expected table '{table}' not found in the database."
