@@ -70,7 +70,7 @@ jobs:
 
       - name: Run tests + coverage
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gsg
           OPENAI_API_KEY: dummy
           PINECONE_API_KEY: dummy        # (future proof)
         run: poetry run pytest --cov --cov-report=xml
