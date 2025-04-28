@@ -56,8 +56,12 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/gsg' }}
         run: |
-          echo "Using database URL for migrations: $DATABASE_URL"
-          poetry run alembic upgrade head
+          echo "Applying migrations with Alembic..."
+          if ! poetry run alembic upgrade head; then
+            echo "Migration failed. Checking database state..."
+            poetry run psql $DATABASE_URL -c '\dt'
+            exit 1
+          fi
 
       - name: Debug installed packages
         run: |
