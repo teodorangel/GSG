@@ -1,10 +1,7 @@
 name: Test
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+# Removed push and pull_request triggers for master to prevent duplicate workflows
+on: [workflow_dispatch] # Example: Keep for manual triggers
 
 jobs:
   test:

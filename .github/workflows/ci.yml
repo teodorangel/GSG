@@ -37,6 +37,12 @@ jobs:
       - name: Install deps
         run: poetry install --no-interaction --with dev
 
+      - name: Reset Database Schema
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        run: |
+          poetry run psql $DATABASE_URL -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
+
       - name: Run migrations
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postgres' }}
