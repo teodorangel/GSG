@@ -20,44 +20,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    # Create products table
-    op.create_table(
-        'products',
-        sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('model', sa.String(length=255), nullable=False),
-        sa.Column('name', sa.String(length=255), nullable=False),
-        sa.Column('category', sa.String(length=255), nullable=True),
-        sa.Column('brand', sa.String(length=255), nullable=True),
-        sa.Column('price', sa.Numeric(10, 2), nullable=True),
-        sa.Column('created_at', sa.DateTime(), server_default=sa.func.now(), nullable=False),
-    )
-    # Create product_documents table
-    op.create_table(
-        'product_documents',
-        sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('product_id', sa.Integer, sa.ForeignKey('products.id'), nullable=False),
-        sa.Column('doc_type', sa.String(length=50), nullable=True),
-        sa.Column('title', sa.String(length=255), nullable=True),
-        sa.Column('file_path', sa.String(length=512), nullable=True),
-        sa.Column('url', sa.String(length=512), nullable=True),
-    )
-    # Create product_images table
-    op.create_table(
-        'product_images',
-        sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('product_id', sa.Integer, sa.ForeignKey('products.id'), nullable=False),
-        sa.Column('image_type', sa.String(length=50), nullable=True),
-        sa.Column('path', sa.String(length=512), nullable=True),
-    )
-    # Create videos table
-    op.create_table(
-        'videos',
-        sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('product_id', sa.Integer, sa.ForeignKey('products.id'), nullable=False),
-        sa.Column('youtube_id', sa.String(length=100), nullable=True),
-        sa.Column('title', sa.String(length=255), nullable=True),
-        sa.Column('url', sa.String(length=512), nullable=True),
-    )
+    # Remove explicit table creation calls
+    pass
 
 
 def downgrade() -> None:
