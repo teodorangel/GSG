@@ -27,11 +27,11 @@ _(add new findings here)_
 
 ---
 ## Sprint 1  (Base Crawler & Extractors)   *ETA 3 days*
-- [ ] Implement `DataItem` model in `crawler/items.py`
-- [ ] Implement `BaseExtractor` + `GrandstreamExtractor`
-- [ ] Seed spider crawling depth 1, writes `out.json`
-- [ ] ItemRouter pipeline routes items to JSON or S3
-- [ ] Unit tests: grandstream extractor happy/edge/failure
+- [x] [S1-01] DataItem model (items.py)   <!-- commit <SHA> -->
+- [x] [S1-02] BaseExtractor interface
+- [x] [S1-03] GrandstreamExtractor MVP
+- [x] [S1-04] SeedSpider depth=1
+- [x] [S1-05] Unit tests for extractor & data item
 
 ### Acceptance
 `out.json` has ≥ 10 product items from grandstream.com.
