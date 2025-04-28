@@ -37,6 +37,13 @@ jobs:
       - name: Install deps
         run: poetry install --no-interaction --with dev
 
+      - name: Create Database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        run: |
+          echo "Ensuring database 'gsg' exists..."
+          poetry run psql $DATABASE_URL -c 'CREATE DATABASE gsg;' || echo "Database 'gsg' already exists."
+
       - name: Reset Database Schema
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gsg
@@ -63,3 +70,4 @@ jobs:
           OPENAI_API_KEY: dummy
           PINECONE_API_KEY: dummy        # (future proof)
         run: poetry run pytest --cov --cov-report=xml
+
