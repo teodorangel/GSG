@@ -39,14 +39,18 @@ jobs:
 
       - name: Reset Database Schema
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gsg
         run: |
+          echo "Resetting database schema..."
           poetry run psql $DATABASE_URL -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'
+          echo "Database schema reset successfully."
 
       - name: Run migrations
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postgres' }}
-        run: poetry run alembic upgrade head
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/gsg' }}
+        run: |
+          echo "Using database URL for migrations: $DATABASE_URL"
+          poetry run alembic upgrade head
 
       - name: Debug installed packages
         run: |
