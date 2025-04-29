@@ -1,10 +1,21 @@
 from fastapi import APIRouter
+from api.models import QARequest, QAResponse
+from unittest.mock import patch
 
 router = APIRouter()
 
-@router.get("/", tags=["qa"])
-async def qa_root():
+@router.post("/", response_model=QAResponse)
+async def run_query(req: QARequest) -> QAResponse:
     """
-    Stub endpoint for QA functionality.
+    Perform a RetrievalQA on the knowledge base (stubbed).
+
+    Args:
+        req (QARequest): The QA request containing query and optional product_id.
+
+    Returns:
+        QAResponse: Mocked answer and sources list.
     """
-    return {"message": "QA endpoint placeholder"}
+    # TODO: call actual agent
+    answer = "Test answer"
+    sources = ["src1", "src2"]
+    return QAResponse(answer=answer, sources=sources)
