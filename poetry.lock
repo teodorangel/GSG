@@ -850,6 +850,7 @@ description = "A library for automatically generating command line interfaces."
 optional = false
 python-versions = "*"
 groups = ["main"]
+markers = "extra == \"dev\""
 files = [
     {file = "fire-0.5.0.tar.gz", hash = "sha256:a6b0d49e98c8963910021f92bba66f65ab440da2982b78eb1bbf95a0a34aacc6"},
 ]
@@ -1456,6 +1457,7 @@ description = "An integration package connecting OpenAI and LangChain"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
+markers = "extra == \"dev\""
 files = [
     {file = "langchain_openai-0.3.14-py3-none-any.whl", hash = "sha256:b8e648d2d7678a5540818199d141ff727c6f1514294b3e1e999a95357c9d66a0"},
     {file = "langchain_openai-0.3.14.tar.gz", hash = "sha256:0662db78620c2e5c3ccfc1c36dc959c0ddc80e6bdf7ef81632cbf4b2cc9b9461"},
@@ -3424,6 +3426,7 @@ description = "ANSI color formatting for output in terminal"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
+markers = "extra == \"dev\""
 files = [
     {file = "termcolor-3.0.1-py3-none-any.whl", hash = "sha256:da1ed4ec8a5dc5b2e17476d859febdb3cccb612be1c36e64511a6f2485c10c69"},
     {file = "termcolor-3.0.1.tar.gz", hash = "sha256:a6abd5c6e1284cea2934443ba806e70e5ec8fd2449021be55c280f8a3731b611"},
@@ -4097,7 +4100,10 @@ cffi = {version = ">=1.11", markers = "platform_python_implementation == \"PyPy\
 [package.extras]
 cffi = ["cffi (>=1.11)"]
 
+[extras]
+dev = ["fire", "langchain-openai", "requests"]
+
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<4.0"
-content-hash = "5b3ba1690cbb188a295ed8b234bf1c5c030051dfdfe70e977bd6dd97a7fec330"
+content-hash = "8c383633364feb767cd54ed811f8cea25ce6d4274f7f96ed480c61240c5297b8"
