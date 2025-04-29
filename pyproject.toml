@@ -4,7 +4,11 @@ version = "0.1.0"
 description = "GSG Project"
 authors = ["Teodor Angelov <teodorangel@gmail.com>"]
 readme = "README.md"
-packages = [{include = "gsg"}]
+packages = [
+  { include = "gsg" },
+  { include = "crawler" },
+  { include = "processors" }
+]
 
 [tool.poetry.dependencies]
 fire = "^0.5"
