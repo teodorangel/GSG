@@ -40,8 +40,10 @@ jobs:
           curl -sSL https://install.python-poetry.org | python -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Install deps
-        run: poetry install --no-interaction --with dev
+      - name: Export requirements
+        run: poetry export --with dev --format requirements.txt --output requirements.txt
+      - name: Install dependencies via pip
+        run: pip install --no-cache-dir -r requirements.txt
 
       - name: Create Database
         env:
