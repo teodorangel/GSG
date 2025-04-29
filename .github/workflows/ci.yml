@@ -40,10 +40,6 @@ jobs:
           curl -sSL https://install.python-poetry.org | python -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Regenerate Poetry lock
-        run: poetry lock
-        # Ensure lock file is up-to-date with pyproject.toml, fixes install mismatch error
-
       - name: Install deps
         run: poetry install --no-interaction --with dev
 
