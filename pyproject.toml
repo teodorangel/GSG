@@ -21,7 +21,8 @@ tiktoken = "*"
 python-dotenv = "^1.1.0"
 rich = "^14.0.0"
 pinecone = "^2.2"
-langchain-community = "^0.0.4"
+requests = "^2.32.3"
+langchain-openai = "^0.3.14"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=8.1.0,<8.2.0"
@@ -31,3 +32,14 @@ pytest-cov = ">=4.1.0,<4.2.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.extras]
+# Install dev dependencies via pip install .[dev]
+dev = [
+  "pytest>=8.1.0,<8.2.0",
+  "pytest-asyncio>=0.23.0,<0.24.0",
+  "pytest-cov>=4.1.0,<4.2.0",
+  "requests>=2.32.3",
+  "langchain-openai>=0.3.14",
+  "fire>=0.5"
+]

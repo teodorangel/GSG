@@ -35,16 +35,14 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Poetry
+      - name: Upgrade pip and setuptools
         run: |
-          curl -sSL https://install.python-poetry.org | python -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          python -m pip install --upgrade pip setuptools
 
-      - name: Regenerate Poetry lock
-        run: poetry lock
-
-      - name: Install deps
-        run: poetry install --no-interaction --with dev
+      - name: Install project and development dependencies via pip
+        run: |
+          pip install .
+          pip install pytest pytest-asyncio pytest-cov requests langchain-openai fire pinecone pydantic-ai psycopg psycopg2-binary sqlalchemy alembic tiktoken python-dotenv rich scrapy
 
       - name: Create Database
         env:
