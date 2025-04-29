@@ -47,7 +47,7 @@ _(add new findings here)_
 ---
 ## Sprint 3  (API & Dashboard)   *ETA 4 days*
 - [x] FastAPI app with `/products`, `/crawl`, `/qa` routes
-- [ ] WebSocket `/logs` stream
+- [x] WebSocket `/logs` stream
 - [ ] Next.js dashboard pages: Crawler list, Search, Planner
 - [ ] React Query hooks for crawlers & products
 
@@ -57,6 +57,15 @@ _(add new findings here)_
 - [ ] Auth (Clerk or Auth.js)
 - [ ] Multi‑brand extractor plug‑ins (Cisco, TP‑Link, Ubiquiti)
 - [ ] Deployment Terraform scripts (AWS Fargate)
+
+## Sprint 4 – AI Agent & RAG Integration
+- [ ] [S4-1] Pydantic-AI RetrievalQA Agent: implement `api/agent.py` with `@ai_function run_qa(query: str, product_id: Optional[int] = None) -> QAResponse` using LangChain's SQLDatabaseChain tool, Pinecone Retriever, and ReAct agent.
+- [ ] [S4-1.1] Unit tests for `run_qa` in `tests/api/test_agent.py`, mocking SQL tool and Retriever, asserting the expected `QAResponse`.
+- [ ] [S4-2] Planning Agent & `/plan` endpoint: extend API with project planning chain and endpoint.
+  - [ ] [S4-2.1] Extend `api/models.py` with `PlanRequest` and `PlanResponse` schemas.
+  - [ ] [S4-2.2] Create `api/routers/plan.py` with `create_plan` route using `run_plan`.
+  - [ ] [S4-2.3] Add Pydantic-AI function `run_plan(product_ids: List[int], budget: float, site_size_sqft: int) -> PlanResponse` in `api/agent.py`.
+  - [ ] [S4-2.4] Write unit tests in `tests/api/test_plan.py`, mocking database and Pinecone calls.
 
 ---
 ## Discovered During Work

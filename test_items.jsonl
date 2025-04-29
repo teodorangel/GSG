@@ -1,0 +1,2 @@
+{"url": "http://example.com/product1", "item_type": "product", "payload": {"model": "GXP2170", "name": "Test Phone"}}
+{"url": "http://example.com/manual.pdf", "item_type": "manual", "payload": {"model": "GXP2170"}}

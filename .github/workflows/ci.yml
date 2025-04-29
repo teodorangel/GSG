@@ -83,10 +83,14 @@ jobs:
 
       - name: Ensure pytest is available
         run: pip install pytest pytest-cov pytest-asyncio
+      - name: Ensure httpx is available for TestClient
+        run: pip install httpx
       - name: Run tests + coverage
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gsg
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+          PINECONE_ENV: ${{ secrets.PINECONE_ENV }}
+          PINECONE_INDEX: ${{ secrets.PINECONE_INDEX }}
         run: python -m pytest --cov --cov-report=xml
 

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import datetime
 from pydantic import BaseModel
 
@@ -108,3 +108,32 @@ class LogMessage(BaseModel):  # type: ignore
     status: str
     detail: Optional[str] = None
     timestamp: datetime
+
+
+# Planning endpoint schemas
+class PlanRequest(BaseModel):  # type: ignore
+    """
+    Request schema for project planning.
+
+    Attributes:
+        product_ids (List[int]): List of product IDs.
+        budget (Optional[float]): Budget constraint.
+        site_size_sqft (Optional[int]): Site size in square feet.
+    """
+    product_ids: List[int]
+    budget: Optional[float] = None
+    site_size_sqft: Optional[int] = None
+
+
+class PlanResponse(BaseModel):  # type: ignore
+    """
+    Response schema for project plan.
+
+    Attributes:
+        steps (List[str]): Step-by-step plan.
+        bill_of_materials (Dict[str, float]): Map of product to cost.
+        estimates (Dict[str, Any]): Additional estimates.
+    """
+    steps: List[str]
+    bill_of_materials: Dict[str, float]
+    estimates: Dict[str, Any]

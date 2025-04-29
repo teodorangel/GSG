@@ -16,6 +16,7 @@ python = ">=3.9,<4.0"
 scrapy = "^2.12.0"
 beautifulsoup4 = "^4.13.4"
 langchain = "^0.3.24"
+langchain-community = "*"
 pydantic-ai = "^0.1.4"
 psycopg = {extras = ["binary"], version = "^3.2.6"}
 psycopg2-binary = "^2.9.9"
@@ -27,11 +28,14 @@ rich = "^14.0.0"
 pinecone = "^2.2"
 requests = "^2.32.3"
 langchain-openai = "^0.3.14"
+fastapi = "^0.101"
+uvicorn = "^0.23"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=8.1.0,<8.2.0"
 pytest-asyncio = ">=0.23.0,<0.24.0"
 pytest-cov = ">=4.1.0,<4.2.0"
+pytest-httpx = "^0.24"
 
 [build-system]
 requires = ["poetry-core"]
