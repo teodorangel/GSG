@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import type { UseMutationResult } from '@tanstack/react-query';
 
 export interface CrawlParams {
   domain: string;
@@ -22,6 +23,10 @@ async function startCrawl(params: CrawlParams): Promise<CrawlResponse> {
   return res.json();
 }
 
-export function useStartCrawl() {
-  return useMutation((params: CrawlParams) => startCrawl(params));
+// Define mutation hook return type
+export function useStartCrawl(): UseMutationResult<CrawlResponse, Error, CrawlParams> {
+  // Use the options-based overload to specify only the mutationFn
+  return useMutation<CrawlResponse, Error, CrawlParams>({
+    mutationFn: (params: CrawlParams) => startCrawl(params),
+  });
 }
