@@ -39,14 +39,14 @@ _(add new findings here)_
 ---
 ## Sprint 2  (Processing & Vectorization)   *ETA 4 days*
 - [ ] Alembic migration → products, documents tables
-- [ ] `processors/ingest_worker.py` splits & embeds
+- [x] `processors/ingest_worker.py` splits & embeds
 - [ ] Pinecone index `grandguru-dev` receives vectors
 - [ ] Postgres rows created via SQLAlchemy models
 - [ ] Coverage ≥ 80 % for ingest utils
 
 ---
 ## Sprint 3  (API & Dashboard)   *ETA 4 days*
-- [ ] FastAPI app with `/products`, `/crawl`, `/qa` routes
+- [x] FastAPI app with `/products`, `/crawl`, `/qa` routes
 - [ ] WebSocket `/logs` stream
 - [ ] Next.js dashboard pages: Crawler list, Search, Planner
 - [ ] React Query hooks for crawlers & products
@@ -56,12 +56,12 @@ _(add new findings here)_
 - [ ] Pydantic‑AI planning agent (`/plan`)
 - [ ] Auth (Clerk or Auth.js)
 - [ ] Multi‑brand extractor plug‑ins (Cisco, TP‑Link, Ubiquiti)
-- [ ] Deployment Terraform scripts (AWS Fargate)
+- [ ] Deployment Terraform scripts (AWS Fargate)
 
 ---
 ## Discovered During Work
 *(Add new TODOs here as they surface)*
 
 ---
-*Last updated 2025‑04‑24*
+*Last updated 2025‑04‑24*
 
