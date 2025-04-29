@@ -40,6 +40,10 @@ jobs:
           curl -sSL https://install.python-poetry.org | python -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
+      - name: Regenerate Poetry lock
+        run: poetry lock
+        # Ensure lock file is up-to-date with pyproject.toml, fixes install mismatch error
+
       - name: Install deps
         run: poetry install --no-interaction --with dev
 
@@ -77,7 +81,7 @@ jobs:
       - name: Run tests + coverage
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gsg
-          OPENAI_API_KEY: dummy
-          PINECONE_API_KEY: dummy        # (future proof)
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
         run: poetry run pytest --cov --cov-report=xml
 
