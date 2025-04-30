@@ -73,7 +73,8 @@ jobs:
           # Use fallback if secret is empty or undefined
           DB_URL=${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/gsg}
           echo "Applying migrations on $DB_URL..."
-          if ! alembic upgrade head --sqlalchemy-url="$DB_URL"; then
+          # Override DATABASE_URL env var for Alembic to pick up via env.py
+          if ! DATABASE_URL="$DB_URL" alembic upgrade head; then
             echo "Migration failed. Inspecting tables in $DB_URL..."
             psql "$DB_URL" -c '\dt'
             exit 1
