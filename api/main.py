@@ -6,6 +6,7 @@ def _patched_httpx_init(self, *args, **kwargs):
     return _orig_httpx_init(self, *args, **kwargs)
 httpx.Client.__init__ = _patched_httpx_init
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from api.routers.products import router as products_router
 from api.routers.crawl import router as crawl_router
 from api.routers.qa import router as qa_router
@@ -34,6 +35,14 @@ def create_app() -> FastAPI:
         FastAPI: Configured FastAPI app with routers registered.
     """
     app = FastAPI(title="GrandGuruAI API")
+    # Allow CORS from any origin (including WebSocket upgrades) for development
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     app.include_router(products_router, prefix="/products", tags=["products"])
     app.include_router(crawl_router, prefix="/crawl", tags=["crawl"])
     app.include_router(qa_router, prefix="/qa", tags=["qa"])

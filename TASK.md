@@ -26,26 +26,27 @@ _(add new findings here)_
 `pytest -q` returns 0 failures; `scrapy crawl seed -V` prints version; `pnpm dev` starts Next app.
 
 ---
-## Sprint 1  (Base Crawler & Extractors)   *ETA 3 days*
+## Sprint 1  (Base Crawler & Extractors)   *ETA 3 days*
 - [x] [S1-01] DataItem model (items.py)   <!-- commit <SHA> -->
 - [x] [S1-02] BaseExtractor interface
 - [x] [S1-03] GrandstreamExtractor MVP
 - [x] [S1-04] SeedSpider depth=1
 - [x] [S1-05] Unit tests for extractor & data item
+- [x] [S1-06] Enhanced GrandstreamExtractor to support multi-level extraction (categories, subcategories, series, articles, manuals) (2025-05-03)
 
 ### Acceptance
 `out.json` has ≥ 10 product items from grandstream.com.
 
 ---
-## Sprint 2  (Processing & Vectorization)   *ETA 4 days*
+## Sprint 2  (Processing & Vectorization)   *ETA 4 days*
 - [ ] Alembic migration → products, documents tables
 - [x] `processors/ingest_worker.py` splits & embeds
 - [ ] Pinecone index `grandguru-dev` receives vectors
 - [ ] Postgres rows created via SQLAlchemy models
-- [ ] Coverage ≥ 80 % for ingest utils
+- [ ] Coverage ≥ 80  % for ingest utils
 
 ---
-## Sprint 3  (API & Dashboard)   *ETA 4 days*
+## Sprint 3  (API & Dashboard)   *ETA 4 days*
 - [x] FastAPI app with `/products`, `/crawl`, `/qa` routes
 - [x] WebSocket `/logs` stream
 - [ ] Next.js dashboard pages: Crawler list, Search, Planner
@@ -68,6 +69,23 @@ _(add new findings here)_
   - [ ] [S4-2.4] Write unit tests in `tests/api/test_plan.py`, mocking database and Pinecone calls.
 
 ---
+## Sprint 5 – Front-end Dashboard
+- [ ] [S5-1] Scaffold Next.js 14 app with TypeScript, Tailwind CSS, and shadcn/ui
+- [ ] [S5-1.1] Configure TanStack Query provider in `app/layout.tsx`
+- [ ] [S5-1.2] Set up OpenAPI client using `openapi-typescript` or custom fetch hooks
+- [ ] [S5-1.3] Create shared React Query hooks in `web/hooks/`:
+  - `useProducts(skip, limit)` → GET `/products`
+  - `useStartCrawl(params)` → POST `/crawl`
+  - `useQA(query)` → POST `/qa`
+  - `usePlan(payload)` → POST `/plan`
+  - `useLogs(jobId)` → WebSocket subscription to `/logs/ws/{jobId}`
+
+### Sprint 5.2 – Build Pages & Components
+- [ ] [S5-2] `/products` page: data table with pagination and detail modal/page
+- [ ] [S5-2.1] `/crawl` page: form for crawl parameters, start button, show job ID, live logs stream component
+- [ ] [S5-2.2] `/qa` page: chat UI with input box, ask button, render answers and sources
+- [ ] [S5-2.3] `/plan` page: multi-step wizard form (select products, budget, site size) and display plan results
+
 ## Discovered During Work
 *(Add new TODOs here as they surface)*
 

@@ -68,12 +68,14 @@ jobs:
 
       - name: Run migrations
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/gsg' }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          echo "Applying migrations with Alembic..."
-          if ! alembic upgrade head; then
-            echo "Migration failed. Checking database state..."
-            psql $DATABASE_URL -c '\dt'
+          # Use fallback if secret is empty or undefined
+          DB_URL=${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/gsg}
+          echo "Applying migrations on $DB_URL..."
+          if ! alembic upgrade head --sqlalchemy-url="$DB_URL"; then
+            echo "Migration failed. Inspecting tables in $DB_URL..."
+            psql "$DB_URL" -c '\dt'
             exit 1
           fi
 
