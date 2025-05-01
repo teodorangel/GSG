@@ -192,6 +192,26 @@ class IngestWorker:
             # Always upsert, even if vectors list is empty
             self.index.upsert(vectors=vectors, namespace=os.getenv("PINECONE_INDEX_NAME", "grandguru-dev"))
 
+    def ingest_item(self, item: DataItem) -> None:
+        """
+        Ingest a single DataItem: load content, split text, embed chunks, and upsert.
+        """
+        try:
+            text = load_content(item)
+        except Exception:
+            text = ""
+        if not text.strip():
+            return
+        # Split text
+        chunks = self.splitter.split_text(text)
+        vectors = []
+        for i, chunk in enumerate(chunks):
+            embedding = self.embedder.embed_query(chunk)
+            vid = f"{item.url}::{i}"
+            vectors.append((vid, embedding, {"url": item.url, "type": item.item_type}))
+        # Upsert into Pinecone
+        self.index.upsert(vectors=vectors, namespace=os.getenv("PINECONE_INDEX_NAME", "grandguru-dev"))
+
 
 if __name__ == "__main__":
     import fire  # if you have fire installed, else call main()

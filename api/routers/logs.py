@@ -3,6 +3,9 @@ from api.models import LogMessage
 from typing import AsyncGenerator
 import asyncio
 from fastapi.encoders import jsonable_encoder
+from datetime import datetime
+from processors.ingest_worker import IngestWorker
+from crawler.items import DataItem, ItemType as CrawlItemType
 
 router = APIRouter()
 
@@ -12,7 +15,10 @@ async def log_stream(job_id: str) -> AsyncGenerator[LogMessage, None]:
     """
     import sys
     import json
-    from datetime import datetime
+
+    # Initialize ingestion worker
+    ingest_worker = IngestWorker()
+    loop = asyncio.get_event_loop()
 
     # Notify client that crawling has started
     yield LogMessage(job_id=job_id, url="", status="started", detail=None, timestamp=datetime.utcnow())
@@ -32,13 +38,21 @@ async def log_stream(job_id: str) -> AsyncGenerator[LogMessage, None]:
             data_item = json.loads(line)
         except json.JSONDecodeError:
             continue
-        detail = data_item.get("payload")
+        # Convert to DataItem and schedule ingestion
+        di = DataItem(
+            url=data_item.get("url", ""),
+            item_type=CrawlItemType(data_item.get("item_type", "page")),
+            payload=data_item.get("payload", {}),
+        )
+        # Run ingestion on thread pool
+        await loop.run_in_executor(None, ingest_worker.ingest_item, di)
+        # Stream the same info to client
         yield LogMessage(
             job_id=job_id,
-            url=data_item.get("url", ""),
+            url=di.url,
             status="fetched",
-            detail=str(detail),
-            timestamp=datetime.utcnow()
+            detail=str(di.payload),
+            timestamp=datetime.utcnow(),
         )
 
     # Wait for crawler to finish and signal completion
