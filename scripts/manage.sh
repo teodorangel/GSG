@@ -10,7 +10,7 @@ mkdir -p "$PID_DIR"
 
 # Commands and settings
 BACKEND_CMD="poetry run uvicorn api.main:app --reload --host 0.0.0.0 --port 8000"
-FRONTEND_CMD="pnpm --cwd web dev"
+FRONTEND_CMD="(cd web && pnpm dev)"
 DB_URL="${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/gsg}"
 
 # Start backend and record PID
