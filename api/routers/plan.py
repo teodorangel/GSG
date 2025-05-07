@@ -16,3 +16,4 @@ async def create_plan(req: PlanRequest) -> PlanResponse:
         PlanResponse: Step-by-step plan, bill of materials, and estimates.
     """
     return run_plan(req.product_ids, req.budget, req.site_size_sqft)
+ 

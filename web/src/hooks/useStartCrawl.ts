@@ -6,6 +6,7 @@ export interface CrawlParams {
   depth?: number;
   concurrency?: number;
   delay?: number;
+  use_proxies?: boolean;
 }
 
 interface CrawlResponse {
@@ -17,7 +18,7 @@ async function startCrawl(params: CrawlParams): Promise<CrawlResponse> {
   // Determine API base URL (NEXT_PUBLIC_API_URL or localhost:8000)
   const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
   console.log(`🛫 startCrawl calling: ${apiBase}/crawl`, params);
-  const res = await fetch(`${apiBase}/crawl`, {
+  const res = await fetch(`${apiBase}/crawl/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(params),

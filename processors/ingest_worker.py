@@ -26,6 +26,7 @@ except ImportError:
         pass
 
 from crawler.items import DataItem
+from shared.db import SessionLocal, get_or_create_product, create_image, create_document
 
 # Pinecone v6+ moved away from top-level init; ensure it exists for backward compatibility
 if not hasattr(pinecone, 'init'):
@@ -196,6 +197,24 @@ class IngestWorker:
         """
         Ingest a single DataItem: load content, split text, embed chunks, and upsert.
         """
+        # Persist or lookup product based on item URL (use URL as unique model)
+        session = SessionLocal()
+        try:
+            product = get_or_create_product(
+                session,
+                model=item.url,
+                name=item.payload.get('title', item.url)
+            )
+            # Attach product_id for persistence
+            item.payload['product_id'] = product.id
+            # Persist any asset URLs directly into DB
+            if 'image_url' in item.payload:
+                create_image(session, product_id=product.id, url=item.payload['image_url'])
+            if 'pdf_url' in item.payload:
+                create_document(session, product_id=product.id, url=item.payload['pdf_url'])
+        finally:
+            session.close()
+        # Load the content (HTML or PDF)
         try:
             text = load_content(item)
         except Exception:

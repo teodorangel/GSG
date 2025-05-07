@@ -1,9 +1,10 @@
 from scrapy.pipelines.images import ImagesPipeline
 from scrapy.pipelines.files import FilesPipeline
 from scrapy import Request
-from crawler.items import DataItem
+from crawler.items import DataItem, ItemType
 import os
 from scrapy.exceptions import NotConfigured
+from shared.db import SessionLocal, create_image, create_document, get_or_create_product
 
 
 class CategoryImagesPipeline(ImagesPipeline):
@@ -29,6 +30,21 @@ class CategoryImagesPipeline(ImagesPipeline):
         filename = os.path.basename(request.url)
         return filename
 
+    def item_completed(self, results, item, info):
+        """
+        After image downloads, persist each to the images table if product_id is provided.
+        """
+        # Only handle DataItem instances
+        if isinstance(item, DataItem):
+            session = SessionLocal()
+            prod_id = item.payload.get('product_id')
+            for ok, file_info in results:
+                if ok and prod_id:
+                    # file_info['url'] is the original URL
+                    create_image(session, product_id=prod_id, url=file_info.get('url'))
+            session.close()
+        return item
+
 
 class ManualFilesPipeline(FilesPipeline):
     """
@@ -51,4 +67,43 @@ class ManualFilesPipeline(FilesPipeline):
     def file_path(self, request, response=None, info=None):
         # Save PDFs under their original filenames
         filename = os.path.basename(request.url)
-        return filename 
+        return filename
+
+    def item_completed(self, results, item, info):
+        """
+        After PDF downloads, persist each to the documents table if product_id is provided.
+        """
+        if isinstance(item, DataItem):
+            session = SessionLocal()
+            prod_id = item.payload.get('product_id')
+            for ok, file_info in results:
+                if ok and prod_id:
+                    # store document record with content path or original URL
+                    create_document(session, product_id=prod_id, url=file_info.get('url'))
+            session.close()
+        return item
+
+
+class ProductPipeline:
+    """Pipeline to create or update products in the database and attach product_id."""
+    def process_item(self, item, spider):
+        if isinstance(item, DataItem) and item.item_type == ItemType.PRODUCT:
+            session = SessionLocal()
+            model = item.payload.get('model') or item.url
+            name = item.payload.get('name') or item.payload.get('title', '')
+            product = get_or_create_product(session, model=model, name=name)
+            # Update other fields if present
+            updated = False
+            for field in ('category', 'price', 'brand'):
+                if field in item.payload:
+                    val = item.payload[field]
+                    if getattr(product, field, None) != val:
+                        setattr(product, field, val)
+                        updated = True
+            if updated:
+                session.add(product)
+                session.commit()
+            # Attach product_id for downstream pipelines
+            item.payload['product_id'] = product.id
+            session.close()
+        return item 

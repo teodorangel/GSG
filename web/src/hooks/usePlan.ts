@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import type { UseMutationResult } from '@tanstack/react-query';
 
 export interface PlanRequest {
   product_ids: number[];
@@ -22,6 +23,9 @@ async function fetchPlan(params: PlanRequest): Promise<PlanResponse> {
   return res.json();
 }
 
-export function usePlan() {
-  return useMutation((params: PlanRequest) => fetchPlan(params));
+export function usePlan(): UseMutationResult<PlanResponse, Error, PlanRequest> {
+  return useMutation<PlanResponse, Error, PlanRequest>({
+    mutationKey: ['plan'],
+    mutationFn: (params: PlanRequest) => fetchPlan(params),
+  });
 }

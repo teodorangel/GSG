@@ -15,6 +15,8 @@ class ProductOut(BaseModel):  # type: ignore
         price (Optional[float]): Product price.
         brand (Optional[str]): Brand name.
         created_at (datetime): Record creation timestamp.
+        images (List[str]): List of image URLs.
+        documents (List[str]): List of document URLs.
     """
     id: int
     model: str
@@ -23,6 +25,11 @@ class ProductOut(BaseModel):  # type: ignore
     price: Optional[float] = None
     brand: Optional[str] = None
     created_at: datetime
+    images: List[str] = []
+    documents: List[str] = []
+
+    class Config:
+        from_attributes = True
 
 
 class ProductListOut(BaseModel):  # type: ignore
@@ -43,15 +50,17 @@ class CrawlRequest(BaseModel):  # type: ignore
     Request schema for initiating a crawl.
 
     Attributes:
-        domain (str): Domain to crawl.
+        domain (str): Domain to crawl (string, e.g. "example.com" or full URL).
         depth (Optional[int]): Crawl depth (default=1).
         concurrency (Optional[int]): Concurrent fetch count (default=2).
         delay (Optional[float]): Delay between requests in seconds (default=1.0).
+        use_proxies (Optional[bool]): Whether to use proxies (default=False).
     """
     domain: str
     depth: Optional[int] = 1
     concurrency: Optional[int] = 2
     delay: Optional[float] = 1.0
+    use_proxies: Optional[bool] = False
 
 
 class CrawlResponse(BaseModel):  # type: ignore

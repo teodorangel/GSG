@@ -1,12 +1,13 @@
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import create_engine, String, ForeignKey, UniqueConstraint
+from sqlalchemy import create_engine, String, ForeignKey, UniqueConstraint, Float
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
     mapped_column,
     relationship,
     sessionmaker,
+    Session,
 )
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError
@@ -30,6 +31,9 @@ class Product(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     model: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     name: Mapped[str] = mapped_column(String(255))
+    category: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    price: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    brand: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         default=datetime.utcnow, onupdate=datetime.utcnow
@@ -85,7 +89,7 @@ class Video(Base):
     product: Mapped[Product] = relationship(back_populates="videos")
 
 # CRUD Operations
-def create_product(db: SessionLocal, *, model: str, name: str) -> Product:
+def create_product(db: Session, *, model: str, name: str) -> Product:
     """Create a new product."""
     product = Product(model=model, name=name)
     db.add(product)
@@ -93,7 +97,7 @@ def create_product(db: SessionLocal, *, model: str, name: str) -> Product:
     db.refresh(product)
     return product
 
-def get_or_create_product(db: SessionLocal, *, model: str, name: str) -> Product:
+def get_or_create_product(db: Session, *, model: str, name: str) -> Product:
     """Get or create a product with SELECT FOR UPDATE to handle concurrency."""
     try:
         # Try to get existing product
@@ -113,7 +117,7 @@ def get_or_create_product(db: SessionLocal, *, model: str, name: str) -> Product
         return db.query(Product).filter(Product.model == model).first()
 
 def create_document(
-    db: SessionLocal, *, product_id: int, url: str, content: Optional[str] = None
+    db: Session, *, product_id: int, url: str, content: Optional[str] = None
 ) -> Document:
     """Create a new document."""
     document = Document(product_id=product_id, url=url, content=content)
@@ -122,8 +126,11 @@ def create_document(
     db.refresh(document)
     return document
 
-def create_image(db: SessionLocal, *, product_id: int, url: str) -> Image:
-    """Create a new image."""
+def create_image(db: Session, *, product_id: int, url: str) -> Image:
+    """Create a new image, or return existing if (product_id, url) exists."""
+    existing = db.query(Image).filter_by(product_id=product_id, url=url).first()
+    if existing:
+        return existing
     image = Image(product_id=product_id, url=url)
     db.add(image)
     db.commit()
@@ -131,7 +138,7 @@ def create_image(db: SessionLocal, *, product_id: int, url: str) -> Image:
     return image
 
 def create_video(
-    db: SessionLocal, *, product_id: int, youtube_id: str, title: Optional[str] = None
+    db: Session, *, product_id: int, youtube_id: str, title: Optional[str] = None
 ) -> Video:
     """Create a new video."""
     video = Video(product_id=product_id, youtube_id=youtube_id, title=title)

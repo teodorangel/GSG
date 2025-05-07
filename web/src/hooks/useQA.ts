@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, type UseMutationResult } from '@tanstack/react-query';
 
 export interface QARequest { query: string; product_id?: number; }
 export interface QAResponse { answer: string; sources: string[]; }
@@ -13,6 +13,9 @@ async function fetchQA(params: QARequest): Promise<QAResponse> {
   return res.json();
 }
 
-export function useQA() {
-  return useMutation((params: QARequest) => fetchQA(params));
+export function useQA(): UseMutationResult<QAResponse, Error, QARequest> {
+  return useMutation<QAResponse, Error, QARequest>({
+    mutationKey: ['qa'],
+    mutationFn: (params: QARequest) => fetchQA(params),
+  });
 }

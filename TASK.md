@@ -39,10 +39,10 @@ _(add new findings here)_
 
 ---
 ## Sprint 2  (Processing & Vectorization)   *ETA 4 days*
-- [ ] Alembic migration → products, documents tables
+- [✓] Alembic migration → products, documents tables
 - [x] `processors/ingest_worker.py` splits & embeds
-- [ ] Pinecone index `grandguru-dev` receives vectors
-- [ ] Postgres rows created via SQLAlchemy models
+- [✈] Pinecone index `grandguru-dev` receives vectors
+- [✈] Postgres rows created via SQLAlchemy models
 - [ ] Coverage ≥ 80  % for ingest utils
 
 ---
@@ -88,7 +88,10 @@ _(add new findings here)_
 
 ## Discovered During Work
 *(Add new TODOs here as they surface)*
+- [ ] Update tests to use real Pinecone interaction instead of mocks
+- [ ] Debug `test_tables_exist` failure in CI/local environment
+- [ ] Investigate and fix JSON parsing error on line 107 of `out.jl` if it persists during real ingestion runs
 
 ---
-*Last updated 2025‑04‑24*
+*Last updated 2025‑05‑16*
 
