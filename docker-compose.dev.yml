@@ -1,34 +1,48 @@
-version: "3.9"
 services:
-  postgres:
+  db:
     image: postgres:15
     container_name: grandguru-pg
     restart: unless-stopped
-    environment:
-      POSTGRES_PASSWORD: postgres
+    env_file:
+      - .env.dev
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  backend:
+  api:
     build:
       context: .
       dockerfile: api/Dockerfile.dev
-      network: host
-    container_name: gsg-backend-dev
-    env_file:
-      - .env.dev
+    command: ["poetry", "run", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ./:/app:cached  # macOS performance flag
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     ports:
       - "8000:8000"
     depends_on:
-      postgres:
+      db:
         condition: service_healthy
+    profiles: ["dev"]
+
+  crawler:
+    build:
+      context: .
+      dockerfile: crawler/Dockerfile.dev
+    volumes:
+      - ./:/app:cached
+    depends_on:
+      - db
+    profiles: ["dev"]
 
 volumes:
   pgdata:
