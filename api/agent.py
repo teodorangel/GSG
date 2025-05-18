@@ -11,11 +11,8 @@ except ImportError:
 from api.models import QAResponse, PlanResponse
 
 # LangChain imports
-# Import OpenAI LLM class, preferring community provider, fallback to langchain-openai
-try:
-    from langchain_community.llms import OpenAI
-except ImportError:
-    from langchain_openai import OpenAI
+# Import OpenAI LLM class from langchain_openai package
+from langchain_openai import OpenAI
 # SQLDatabaseChain import (with fallback)
 try:
     from langchain_community.chains import SQLDatabaseChain
@@ -37,7 +34,7 @@ except ImportError:
             pass
         def run(self, query: str) -> str:
             raise NotImplementedError("RetrievalQA is not available but was called")
-from langchain.embeddings import OpenAIEmbeddings
+from langchain_community.embeddings import OpenAIEmbeddings
 # Pinecone retriever import is deferred to runtime within AI functions to avoid import-time errors
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
