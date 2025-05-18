@@ -99,7 +99,7 @@ def run_plan(product_ids: List[int], budget: Optional[float] = None, site_size_s
     # Retrieve product specs and prices
     db_chain = SQLDatabaseChain.from_llm(llm=llm, database=engine, verbose=False)
     specs = db_chain.run(
-        f"SELECT model, price FROM product WHERE id IN ({','.join(map(str, product_ids))})"
+        f"SELECT model, price FROM products WHERE id IN ({','.join(map(str, product_ids))})"
     )
 
     # Fetch relevant documentation snippets if retriever is configured

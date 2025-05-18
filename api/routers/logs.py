@@ -29,6 +29,7 @@ async def log_stream(
     concurrency: int = 2,
     delay: float = 1.0,
     use_proxies: bool = False,
+    limit: int = None,
 ) -> AsyncGenerator[LogMessage, None]:
     """
     Launch the Scrapy 'seed' spider and stream its DataItems as LogMessages.
@@ -61,12 +62,17 @@ async def log_stream(
             env["https_proxy"] = proxy_url
 
     # Start Scrapy as a subprocess, outputting JSON items to stdout
-    proc = await asyncio.create_subprocess_exec(
+    scrapy_args = [
         sys.executable, "-m", "scrapy", "crawl", "seed", "-a", f"domain={start_url}",
         "-s", f"DEPTH_LIMIT={depth}",
         "-s", f"CONCURRENT_REQUESTS_PER_DOMAIN={concurrency}",
         "-s", f"DOWNLOAD_DELAY={delay}",
         "-O", "-:jl", "--nolog",
+    ]
+    if limit:
+        scrapy_args.extend(["-s", f"CLOSESPIDER_ITEMCOUNT={limit}"])
+    proc = await asyncio.create_subprocess_exec(
+        *scrapy_args,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
         env=env,
@@ -173,21 +179,19 @@ async def crawl_job_enqueued(
     concurrency: int = 2,
     delay: float = 1.0,
     use_proxies: bool = False,
+    limit: int = None,
 ):
     """
     Run the log_stream and enqueue each LogMessage into the job's queue.
     """
-    logging.info(f"[crawl_job] starting job {job_id} with start_url={start_url}")
-    # Use the pre-initialized queue from start_crawl (or create one)
+    logging.info(f"[crawl_job] starting job {job_id} with start_url={start_url}, limit={limit}")
     queue = job_queues.get(job_id) or asyncio.Queue()
     job_queues[job_id] = queue
     try:
-        # Kick off log stream with provided parameters
-        async for msg in log_stream(job_id, start_url, domain, depth, concurrency, delay, use_proxies):
+        async for msg in log_stream(job_id, start_url, domain, depth, concurrency, delay, use_proxies, limit):
             logging.debug(f"[crawl_job] enqueuing msg status={msg.status} url={msg.url}")
             await queue.put(msg)
     finally:
-        # signal completion
         await queue.put(None)
 
 @router.websocket("/ws/{job_id}")
@@ -230,14 +234,19 @@ async def websocket_logs(websocket: WebSocket, job_id: str):
 @router.post("/stop/{job_id}")
 async def stop_crawl(job_id: str):
     """Terminate a running crawl job and notify listeners."""
+    logging.info(f"[stop_crawl] Called for job_id={job_id}")
     proc = proc_handles.get(job_id)
     if proc and proc.returncode is None:
+        logging.info(f"[stop_crawl] Terminating process for job_id={job_id}")
         proc.terminate()
         try:
             await asyncio.wait_for(proc.wait(), timeout=5)
+            logging.info(f"[stop_crawl] Process for job_id={job_id} terminated successfully.")
         except asyncio.TimeoutError:
+            logging.warning(f"[stop_crawl] Timeout waiting for process to terminate, killing process for job_id={job_id}")
             proc.kill()
     else:
+        logging.info(f"[stop_crawl] No running process found for job_id={job_id}, marking as canceled.")
         # Process not yet started; mark as cancelled so log_stream exits early
         canceled_jobs.add(job_id)
 
@@ -247,4 +256,5 @@ async def stop_crawl(job_id: str):
         msg = LogMessage(job_id=job_id, url="", status="stopped", detail=None, timestamp=datetime.utcnow())
         await queue.put(msg)
         await queue.put(None)
+    logging.info(f"[stop_crawl] Stop endpoint completed for job_id={job_id}")
     return {"job_id": job_id, "status": "stopped"}

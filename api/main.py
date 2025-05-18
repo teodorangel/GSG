@@ -12,6 +12,7 @@ from api.routers.crawl import router as crawl_router
 from api.routers.qa import router as qa_router
 from api.routers.logs import router as logs_router
 from api.routers.plan import router as plan_router
+from api.routers.admin import router as admin_router
 # Monkey-patch FastAPI's TestClient to handle unexpected 'app' kwarg issues
 from fastapi.testclient import TestClient as _FastAPITestClient
 _orig_testclient_init = _FastAPITestClient.__init__
@@ -26,6 +27,7 @@ def _patched_testclient_init(self, *args, **kwargs):
 _FastAPITestClient.__init__ = _patched_testclient_init
 import fastapi
 import uvicorn
+from fastapi.staticfiles import StaticFiles
 
 def create_app() -> FastAPI:
     """
@@ -48,10 +50,15 @@ def create_app() -> FastAPI:
     app.include_router(qa_router, prefix="/qa", tags=["qa"])
     app.include_router(logs_router, prefix="/logs", tags=["logs"])
     app.include_router(plan_router, prefix="/plan", tags=["plan"])
+    app.include_router(admin_router)
     return app
 
 
 app = create_app()
+
+# Serve static files for images and documents
+app.mount("/static/images", StaticFiles(directory="images"), name="images")
+app.mount("/static/documents", StaticFiles(directory="documents"), name="documents")
 
 if __name__ == "__main__":
     import uvicorn

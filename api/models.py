@@ -1,6 +1,6 @@
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ProductOut(BaseModel):  # type: ignore
@@ -25,8 +25,8 @@ class ProductOut(BaseModel):  # type: ignore
     price: Optional[float] = None
     brand: Optional[str] = None
     created_at: datetime
-    images: List[str] = []
-    documents: List[str] = []
+    images: List[str] = Field(default_factory=list)
+    documents: List[str] = Field(default_factory=list)
 
     class Config:
         from_attributes = True
@@ -55,12 +55,14 @@ class CrawlRequest(BaseModel):  # type: ignore
         concurrency (Optional[int]): Concurrent fetch count (default=2).
         delay (Optional[float]): Delay between requests in seconds (default=1.0).
         use_proxies (Optional[bool]): Whether to use proxies (default=False).
+        limit (Optional[int]): Max number of items to crawl (default=None, unlimited).
     """
     domain: str
     depth: Optional[int] = 1
     concurrency: Optional[int] = 2
     delay: Optional[float] = 1.0
     use_proxies: Optional[bool] = False
+    limit: Optional[int] = None
 
 
 class CrawlResponse(BaseModel):  # type: ignore

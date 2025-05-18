@@ -39,9 +39,10 @@ class CategoryImagesPipeline(ImagesPipeline):
             session = SessionLocal()
             prod_id = item.payload.get('product_id')
             for ok, file_info in results:
-                if ok and prod_id:
-                    # file_info['url'] is the original URL
-                    create_image(session, product_id=prod_id, url=file_info.get('url'))
+                local_path = file_info.get('path')
+                if ok and prod_id and local_path:
+                    from os.path import basename
+                    create_image(session, product_id=prod_id, url=basename(local_path))
             session.close()
         return item
 
@@ -71,15 +72,20 @@ class ManualFilesPipeline(FilesPipeline):
 
     def item_completed(self, results, item, info):
         """
-        After PDF downloads, persist each to the documents table if product_id is provided.
+        After PDF downloads, persist each to the documents table, always associating with a product using model/name from the payload.
         """
-        if isinstance(item, DataItem):
+        if isinstance(item, DataItem) and 'pdf_url' in item.payload:
             session = SessionLocal()
-            prod_id = item.payload.get('product_id')
-            for ok, file_info in results:
-                if ok and prod_id:
-                    # store document record with content path or original URL
-                    create_document(session, product_id=prod_id, url=file_info.get('url'))
+            model = item.payload.get('model')
+            name = item.payload.get('name')
+            if model or name:
+                # Look up or create the product
+                product = get_or_create_product(session, model=model, name=name)
+                for ok, file_info in results:
+                    local_path = file_info.get('path')
+                    if ok and local_path:
+                        from os.path import basename
+                        create_document(session, product_id=product.id, url=basename(local_path))
             session.close()
         return item
 

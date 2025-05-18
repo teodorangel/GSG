@@ -25,7 +25,7 @@ except ImportError:
     class PyPDFLoader(HTMLLoader):
         pass
 
-from crawler.items import DataItem
+from crawler.items import DataItem, ItemType
 from shared.db import SessionLocal, get_or_create_product, create_image, create_document
 
 # Pinecone v6+ moved away from top-level init; ensure it exists for backward compatibility
@@ -123,7 +123,7 @@ def ingest_from_jsonl(path: str) -> Iterator[DataItem]:
             obj = json.loads(line)
             yield DataItem(
                 url=obj["url"],
-                item_type=obj["item_type"],
+                item_type=ItemType(obj["item_type"]),
                 payload=obj["payload"],
             )
 

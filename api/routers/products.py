@@ -1,43 +1,35 @@
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from api.models import ProductOut, ProductListOut
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from shared.db import SessionLocal, Product, Image
+from shared.db import Product, Image
+from api.deps import get_db
 from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
-# Dependency to get DB session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-@router.get("/", response_model=ProductListOut)
-async def list_products(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    """
-    List products from the database with pagination.
-    """
-    db_items = db.query(Product).offset(skip).limit(limit).all()
-    total = db.query(func.count(Product.id)).scalar() or 0
-    # Map each SQLAlchemy Product to dict for Pydantic
-    items = []
-    for p in db_items:
-        items.append({
-            "id": p.id,
-            "model": p.model,
-            "name": p.name,
-            "category": p.category,
-            "price": p.price,
-            "brand": p.brand,
-            "created_at": p.created_at,
-            "images": [img.url for img in p.images],
-            "documents": [doc.url for doc in p.documents],
-        })
-    return ProductListOut(items=items, total=total)
+@router.get("/")
+def get_products(offset: int = Query(0, ge=0), limit: int = Query(10, ge=1, le=100), db: Session = Depends(get_db)):
+    total = db.query(Product).count()
+    products = db.query(Product).offset(offset).limit(limit).all()
+    return {
+        "items": [
+            {
+                "id": p.id,
+                "model": p.model,
+                "name": p.name,
+                "category": p.category,
+                "price": p.price,
+                "brand": p.brand,
+                "created_at": p.created_at,
+                "images": [img.url for img in p.images],
+                "documents": [doc.url for doc in p.documents],
+            }
+            for p in products
+        ],
+        "total": total
+    }
 
 @router.get("/{product_id}", response_model=ProductOut)
 async def get_product(product_id: int, db: Session = Depends(get_db)):

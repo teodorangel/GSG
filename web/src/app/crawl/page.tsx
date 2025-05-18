@@ -3,6 +3,11 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useStartCrawl, CrawlParams } from '@/hooks/useStartCrawl';
 import { useLogs } from '@/hooks/useLogs';
 import { useStopCrawl } from '@/hooks/useStopCrawl';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 export default function CrawlPage() {
   // Form state
@@ -52,68 +57,109 @@ export default function CrawlPage() {
     });
   };
 
+  const handleTestCrawl = () => {
+    if (!isValid) return;
+    const params: CrawlParams = { domain, depth, concurrency, delay, use_proxies: useProxies, limit: 20 };
+    startCrawl(params, {
+      onSuccess: (data) => {
+        setJobId(data.job_id);
+      },
+    });
+  };
+
+  const handleFullCrawl = () => {
+    if (!isValid) return;
+    const params: CrawlParams = { domain, depth, concurrency, delay, use_proxies: useProxies };
+    startCrawl(params, {
+      onSuccess: (data) => {
+        setJobId(data.job_id);
+      },
+    });
+  };
+
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Start a Crawl Job</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block font-medium">Domain URL</label>
-          <input
+          <Label htmlFor="domain">Domain URL</Label>
+          <Input
             type="url"
             className="mt-1 w-full border rounded p-2"
             placeholder="https://example.com"
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
             required
+            id="domain"
           />
           {!isValid && domain && <p className="text-red-600">Invalid URL</p>}
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block font-medium">Depth</label>
-            <input
+            <Label htmlFor="depth">Depth</Label>
+            <Input
               type="number"
-              className="mt-1 w-full border rounded p-2"
+              className="mt-1 w-full"
               min={1}
               value={depth}
               onChange={(e) => setDepth(Number(e.target.value))}
+              id="depth"
             />
           </div>
           <div>
-            <label className="block font-medium">Concurrency</label>
-            <input
+            <Label htmlFor="concurrency">Concurrency</Label>
+            <Input
               type="number"
-              className="mt-1 w-full border rounded p-2"
+              className="mt-1 w-full"
               min={1}
               value={concurrency}
               onChange={(e) => setConcurrency(Number(e.target.value))}
+              id="concurrency"
             />
           </div>
           <div>
-            <label className="block font-medium">Delay (s)</label>
-            <input
+            <Label htmlFor="delay">Delay (s)</Label>
+            <Input
               type="number"
               step="0.1"
-              className="mt-1 w-full border rounded p-2"
+              className="mt-1 w-full"
               min={0}
               value={delay}
               onChange={(e) => setDelay(Number(e.target.value))}
+              id="delay"
             />
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <input type="checkbox" id="useProxies" checked={useProxies} onChange={(e)=>setUseProxies(e.target.checked)} />
-          <label htmlFor="useProxies" className="font-medium">Use proxies</label>
+          <Checkbox id="useProxies" checked={useProxies} onCheckedChange={(checked) => setUseProxies(Boolean(checked))} />
+          <Label htmlFor="useProxies">Use proxies</Label>
         </div>
-        <button
+        <Button
           type="submit"
           disabled={!isValid || isSubmitting}
-          className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
         >
           {isSubmitting ? 'Starting...' : 'Start Crawl'}
-        </button>
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          className="ml-2"
+          disabled={!isValid || isSubmitting}
+          onClick={handleTestCrawl}
+        >
+          Crawl 20 Items (Test)
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="ml-2"
+          disabled={!isValid || isSubmitting}
+          onClick={handleFullCrawl}
+        >
+          Crawl Full Site
+        </Button>
         {jobId && (
-          <button
+          <Button
             type="button"
             disabled={stopStatus === 'pending'}
             onClick={() =>
@@ -121,10 +167,11 @@ export default function CrawlPage() {
                 onSuccess: () => setJobId(''),
               })
             }
-            className="ml-4 px-4 py-2 bg-red-600 text-white rounded disabled:opacity-50"
+            variant="destructive"
+            className="ml-4"
           >
             {stopStatus === 'pending' ? 'Stopping...' : 'Stop Crawl'}
-          </button>
+          </Button>
         )}
       </form>
 
@@ -184,22 +231,38 @@ export default function CrawlPage() {
 
       {metrics && (
         <div className="mt-6 grid grid-cols-4 gap-4 text-center">
-          <div className="bg-white p-4 rounded shadow">
-            <div className="text-sm text-gray-500">Fetched</div>
-            <div className="text-xl font-bold">{metrics.fetched}</div>
-          </div>
-          <div className="bg-white p-4 rounded shadow">
-            <div className="text-sm text-gray-500">Ingested</div>
-            <div className="text-xl font-bold">{metrics.ingested}</div>
-          </div>
-          <div className="bg-white p-4 rounded shadow">
-            <div className="text-sm text-gray-500">Errors</div>
-            <div className="text-xl font-bold text-red-600">{metrics.errors}</div>
-          </div>
-          <div className="bg-white p-4 rounded shadow">
-            <div className="text-sm text-gray-500">Elapsed (s)</div>
-            <div className="text-xl font-bold">{metrics.elapsed.toFixed(1)}</div>
-          </div>
+          <Card>
+            <CardHeader className="p-4">
+              <CardTitle className="text-sm font-medium text-gray-500">Fetched</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <div className="text-xl font-bold text-center">{metrics.fetched}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="p-4">
+              <CardTitle className="text-sm font-medium text-gray-500">Ingested</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <div className="text-xl font-bold text-center">{metrics.ingested}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="p-4">
+              <CardTitle className="text-sm font-medium text-gray-500">Errors</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <div className="text-xl font-bold text-red-600 text-center">{metrics.errors}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="p-4">
+              <CardTitle className="text-sm font-medium text-gray-500">Elapsed (s)</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0">
+              <div className="text-xl font-bold text-center">{metrics.elapsed.toFixed(1)}</div>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

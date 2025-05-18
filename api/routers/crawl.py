@@ -24,7 +24,7 @@ async def start_crawl(req: CrawlRequest, background_tasks: BackgroundTasks) -> C
     queue = asyncio.Queue()
     job_queues[job_id] = queue
     logging.info(
-        f"[crawl] scheduling job {job_id} for {req.domain}, depth={req.depth}, concurrency={req.concurrency}, delay={req.delay}, use_proxies={req.use_proxies}"
+        f"[crawl] scheduling job {job_id} for {req.domain}, depth={req.depth}, concurrency={req.concurrency}, delay={req.delay}, use_proxies={req.use_proxies}, limit={req.limit}"
     )
     # Schedule the crawl and ingestion in the background, passing domain
     background_tasks.add_task(
@@ -36,5 +36,6 @@ async def start_crawl(req: CrawlRequest, background_tasks: BackgroundTasks) -> C
         req.concurrency or 2,
         req.delay or 1.0,
         req.use_proxies or False,
+        req.limit,
     )
     return CrawlResponse(job_id=job_id, status="created")

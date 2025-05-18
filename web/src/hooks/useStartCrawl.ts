@@ -7,6 +7,7 @@ export interface CrawlParams {
   concurrency?: number;
   delay?: number;
   use_proxies?: boolean;
+  limit?: number;
 }
 
 interface CrawlResponse {

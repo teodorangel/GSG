@@ -16,10 +16,10 @@ ITEM_PIPELINES = {
 }
 
 # Directory to store downloaded category icons
-IMAGES_STORE = 'images/categories'
+IMAGES_STORE = 'images'
 
 # Directory to store downloaded manual PDF files
-FILES_STORE = 'files/manuals'
+FILES_STORE = 'documents'
 
 # Optional: set user agent
 USER_AGENT = 'GrandGuruCrawler (+https://github.com/teodorangel/GSG)' 

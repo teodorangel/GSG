@@ -1,6 +1,5 @@
 from fastapi import APIRouter
 from api.models import QARequest, QAResponse
-from unittest.mock import patch
 
 router = APIRouter()
 
