@@ -8,6 +8,11 @@ if [ -f .env.dev ]; then
   set +o allexport
 fi
 
+# Create .env for Compose interpolation if missing
+if [ ! -f .env ]; then
+  cp .env.dev .env
+fi
+
 # Development startup script: starts db, api, and crawler services
 # Use Docker Compose v2 if it supports profiles, else fallback to v1
 if docker compose up --help 2>&1 | grep -q -- '--profile'; then
