@@ -11,9 +11,10 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError
+import os
 
 # Database URL should be configured via environment variable
-DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/gsg"
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/gsg")
 
 # Create engine
 engine = create_engine(DATABASE_URL, echo=True)

@@ -45,8 +45,13 @@ if not hasattr(pinecone, 'Index'):
 
 def init_pinecone():
     """Initialize Pinecone client, supporting both v2 (top-level init) and v6 (Pinecone class)."""
-    key = os.getenv("PINECONE_API_KEY", "")
-    env = os.getenv("PINECONE_ENV", "")
+    # Validate required Pinecone environment variables
+    key = os.getenv("PINECONE_API_KEY")
+    if not key:
+        raise RuntimeError("PINECONE_API_KEY environment variable must be set")
+    env = os.getenv("PINECONE_ENV")
+    if not env:
+        raise RuntimeError("PINECONE_ENV environment variable must be set")
     index_name = os.getenv("PINECONE_INDEX_NAME", "grandguru-dev")
     # Try v2-style init first
     try:

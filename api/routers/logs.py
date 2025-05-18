@@ -193,6 +193,8 @@ async def crawl_job_enqueued(
             await queue.put(msg)
     finally:
         await queue.put(None)
+        # Clean up queue to prevent memory leaks
+        job_queues.pop(job_id, None)
 
 @router.websocket("/ws/{job_id}")
 @router.websocket("/ws/{job_id}/")
@@ -256,5 +258,7 @@ async def stop_crawl(job_id: str):
         msg = LogMessage(job_id=job_id, url="", status="stopped", detail=None, timestamp=datetime.utcnow())
         await queue.put(msg)
         await queue.put(None)
+        # Clean up queue to prevent memory leaks
+        job_queues.pop(job_id, None)
     logging.info(f"[stop_crawl] Stop endpoint completed for job_id={job_id}")
     return {"job_id": job_id, "status": "stopped"}

@@ -12,11 +12,12 @@ class CategoryImagesPipeline(ImagesPipeline):
     Pipeline to download category and subcategory icons.
     """
     def __init__(self, *args, **kwargs):
-        # Swallow any errors (e.g., missing Pillow) so tests can instantiate without issues
+        # Initialize the ImagesPipeline; disable if dependencies are missing
         try:
             super().__init__(*args, **kwargs)
-        except Exception:
-            pass
+        except Exception as e:
+            self.logger.error("CategoryImagesPipeline initialization failed: %s", e)
+            raise NotConfigured("CategoryImagesPipeline disabled due to initialization error") from e
 
     def get_media_requests(self, item, info):
         # Only process items with an image_url in payload
@@ -52,11 +53,12 @@ class ManualFilesPipeline(FilesPipeline):
     Pipeline to download manual PDF files.
     """
     def __init__(self, *args, **kwargs):
-        # Swallow any errors so tests can instantiate without issues
+        # Initialize the FilesPipeline; disable if dependencies are missing
         try:
             super().__init__(*args, **kwargs)
-        except Exception:
-            pass
+        except Exception as e:
+            self.logger.error("ManualFilesPipeline initialization failed: %s", e)
+            raise NotConfigured("ManualFilesPipeline disabled due to initialization error") from e
 
     def get_media_requests(self, item, info):
         # Only process items with a pdf_url in payload

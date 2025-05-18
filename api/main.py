@@ -26,6 +26,7 @@ def _patched_testclient_init(self, *args, **kwargs):
         return _orig_testclient_init(self, *args)
 _FastAPITestClient.__init__ = _patched_testclient_init
 import fastapi
+import os
 import uvicorn
 from fastapi.staticfiles import StaticFiles
 
@@ -36,6 +37,10 @@ def create_app() -> FastAPI:
     Returns:
         FastAPI: Configured FastAPI app with routers registered.
     """
+    # Validate required environment variables
+    missing = [var for var in ("DATABASE_URL", "PINECONE_API_KEY", "PINECONE_ENV") if not os.getenv(var)]
+    if missing:
+        raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}")
     app = FastAPI(title="GrandGuruAI API")
     # Allow CORS from any origin (including WebSocket upgrades) for development
     app.add_middleware(

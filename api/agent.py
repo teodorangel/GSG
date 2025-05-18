@@ -45,10 +45,18 @@ from sqlalchemy.orm import sessionmaker
 # Initialize LLM
 llm = OpenAI()
 
-# Setup Database engine and session
+# Setup Database engine lazily from environment variable
 DATABASE_URL = os.getenv("DATABASE_URL")
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+_engine = None
+
+def get_engine():
+    """Lazily initialize and return the SQLAlchemy engine."""
+    global _engine
+    if _engine is None:
+        if not DATABASE_URL:
+            raise RuntimeError("DATABASE_URL environment variable is not set")
+        _engine = create_engine(DATABASE_URL)
+    return _engine
 
 # Setup Pinecone retriever (wrapped to avoid import-time errors if Pinecone client missing or misconfigured)
 pinecone_retriever = None  # Will be configured at runtime or overridden in tests
@@ -67,7 +75,7 @@ def run_qa(query: str, product_id: Optional[int] = None) -> QAResponse:
         QAResponse: The answer and list of source references.
     """
     # SQL database chain for structured data
-    db_chain = SQLDatabaseChain.from_llm(llm=llm, database=engine, verbose=False)
+    db_chain = SQLDatabaseChain.from_llm(llm=llm, database=get_engine(), verbose=False)
     # Retrieval QA for unstructured docs
     retriever_chain = RetrievalQA(llm=llm, retriever=pinecone_retriever)
 
@@ -97,7 +105,7 @@ def run_plan(product_ids: List[int], budget: Optional[float] = None, site_size_s
         PlanResponse: Steps, bill of materials, and estimates.
     """
     # Retrieve product specs and prices
-    db_chain = SQLDatabaseChain.from_llm(llm=llm, database=engine, verbose=False)
+    db_chain = SQLDatabaseChain.from_llm(llm=llm, database=get_engine(), verbose=False)
     specs = db_chain.run(
         f"SELECT model, price FROM products WHERE id IN ({','.join(map(str, product_ids))})"
     )
