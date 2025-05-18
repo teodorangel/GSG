@@ -1,0 +1,22 @@
+FROM python:3.11-slim
+
+# 1 – System deps
+RUN apt-get update && apt-get install -y build-essential && rm -rf /var/lib/apt/lists/*
+
+# 2 – Python deps
+WORKDIR /app
+COPY pyproject.toml poetry.lock ./
+RUN pip install --no-cache-dir poetry && poetry install --no-root
+
+# 3 – Source (bind-mounted at run-time)
+COPY api/ ./api
+COPY gsg/ ./gsg
+COPY shared/ ./shared
+
+# Copy entrypoint script to run migrations before starting API
+COPY scripts/entrypoint_api.sh ./scripts/entrypoint_api.sh
+RUN chmod +x scripts/entrypoint_api.sh
+
+# Use entrypoint to run migrations then start the FastAPI server
+ENTRYPOINT ["./scripts/entrypoint_api.sh"]
+CMD ["poetry", "run", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"] 
