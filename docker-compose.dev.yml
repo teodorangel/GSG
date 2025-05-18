@@ -40,7 +40,8 @@ services:
     volumes:
       - ./:/app:cached
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     profiles: ["dev"]
 
 volumes:
